@@ -11,6 +11,8 @@ User = get_user_model()
 
 class TestNotesContext(TestCase):
 
+    NOTES_COUNT_FOR_TEST = 5
+
     @classmethod
     def setUpTestData(cls):
         cls.author = User.objects.create(username='Автор Заметок')

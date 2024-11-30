@@ -97,6 +97,8 @@ class TestNoteEditDelete(TestCase):
 
 class TestSlugCreat(TestCase):
 
+    MAX_SLUG_LENGTH = 100
+
     @classmethod
     def setUpTestData(cls):
         cls.author = User.objects.create(username='Автор Заметок')
