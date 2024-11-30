@@ -27,7 +27,7 @@ class TestUrls(TestCase):
         urls = ('notes:home', 'users:login', 'users:logout', 'users:signup')
         for url in urls:
             with self.subTest(url=url):
-                response = self.client.get(url)
+                response = self.client.get(reverse(url))
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_note_list(self):
