@@ -46,9 +46,9 @@ class TestNotesContext(TestCase):
 
     def test_form_in_context(self):
         note = Note.objects.first()
-        urls_arg = (('notes:add', None), ('notes:edit', note.slug))
-        for url, args in urls_arg:
+        urls_kwarg = (('notes:add', {}), ('notes:edit', {'slug': note.slug}))
+        for url, kwargs in urls_kwarg:
             with self.subTest(url=url):
-                response = self.client.get(reverse(url), args=args)
+                response = self.client.get(reverse(url), kwargs=kwargs)
                 form = 'form' in response.context
                 self.assertEqual(form, True)
