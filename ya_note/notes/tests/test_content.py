@@ -48,7 +48,7 @@ class TestNotesContext(TestCase):
         note = Note.objects.first()
         urls_kwarg = (('notes:add', {}), ('notes:edit', {'slug': note.slug}))
         for url, kwargs in urls_kwarg:
-            with self.subTest(url=url):
+            with self.subTest(url=url, kwargs=kwargs):
                 response = self.client.get(reverse(url), kwargs=kwargs)
                 form = 'form' in response.context
                 self.assertEqual(form, True)
