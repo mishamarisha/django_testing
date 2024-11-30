@@ -102,7 +102,7 @@ class TestSlugCreat(TestCase):
         cls.author = User.objects.create(username='Автор Заметок')
         cls.title = 'Название заметки'
         cls.generated_slug = slugify(cls.title)[:cls.MAX_SLUG_LENGTH]
-    
+
     def test_filled_empty_slug(self):
         self.client.force_login(self.author)
         ready_slug = 'test_note_1'

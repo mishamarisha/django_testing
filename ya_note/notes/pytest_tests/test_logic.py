@@ -13,11 +13,10 @@ def test_user_can_create_note(author_client, author, form_data):
     url = reverse('notes:add')
     # В POST-запросе отправляем данные, полученные из фикстуры form_data:
     response = author_client.post(url, data=form_data)
-    # Проверяем, что был выполнен редирект на страницу успешного добавления заметки:
     assertRedirects(response, reverse('notes:success'))
     # Считаем общее количество заметок в БД, ожидаем 1 заметку.
     assert Note.objects.count() == 1
-    # Чтобы проверить значения полей заметки - 
+    # Чтобы проверить значения полей заметки -
     # получаем её из базы при помощи метода get():
     new_note = Note.objects.get()
     # Сверяем атрибуты объекта с ожидаемыми.
@@ -53,7 +52,7 @@ def test_author_can_edit_note(author_client, form_data, note):
     # Проверяем, что атрибуты заметки соответствуют обновлённым:
     assert note.title == form_data['title']
     assert note.text == form_data['text']
-    assert note.slug == form_data['slug'] 
+    assert note.slug == form_data['slug']
 
 
 def test_other_user_cant_edit_note(not_author_client, form_data, note):
@@ -66,7 +65,7 @@ def test_other_user_cant_edit_note(not_author_client, form_data, note):
     # Проверяем, что атрибуты объекта из БД равны атрибутам заметки до запроса.
     assert note.title == note_from_db.title
     assert note.text == note_from_db.text
-    assert note.slug == note_from_db.slug 
+    assert note.slug == note_from_db.slug
 
 
 def test_author_can_delete_note(author_client, slug_for_args):
@@ -80,4 +79,4 @@ def test_other_user_cant_delete_note(not_author_client, slug_for_args):
     url = reverse('notes:delete', args=slug_for_args)
     response = not_author_client.post(url)
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert Note.objects.count() == 1 
+    assert Note.objects.count() == 1

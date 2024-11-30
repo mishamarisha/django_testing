@@ -63,6 +63,7 @@ def news_list():
     ]
     News.objects.bulk_create(all_news)
 
+
 @pytest.fixture
 def comment_list(news, author):
     today = datetime.today()
@@ -76,6 +77,7 @@ def comment_list(news, author):
         for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
     ]
     Comment.objects.bulk_create(all_comments)
+
 
 @pytest.fixture
 def form_data():

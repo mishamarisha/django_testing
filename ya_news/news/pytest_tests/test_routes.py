@@ -43,7 +43,6 @@ def test_pages_availability_for_author(
     assert response.status_code == expected_status
 
 
-
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     'name',
