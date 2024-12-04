@@ -39,7 +39,7 @@ class TestUrls(TestCase):
             ('users:login', None, client, HTTPStatus.OK),
             ('users:logout', None, client, HTTPStatus.OK),
             ('users:signup', None, client, HTTPStatus.OK),
-            ('notes:list', None, author_client, HTTPStatus.OK),
+            ('notes:list', None, self.author_client, HTTPStatus.OK),
             (
                 'notes:edit',
                 self.note.slug,
