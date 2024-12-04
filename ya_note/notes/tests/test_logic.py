@@ -39,6 +39,8 @@ class TestNoteCreation(TestCase):
             'text': cls.NOTE_TEXT_EDIT
         }
         cls.generated_slug = slugify(cls.NOTE_TITLE)[:cls.MAX_SLUG_LENGTH]
+        cls.new_generated_slug = slugify(
+            cls.NOTE_TITLE_EDIT)[:cls.MAX_SLUG_LENGTH]
         cls.add_url = reverse('notes:add')
         cls.delete_url = reverse('notes:delete', args=(cls.note.slug,))
         cls.edit_url = reverse('notes:edit', args=(cls.note.slug,))
@@ -52,7 +54,7 @@ class TestNoteCreation(TestCase):
 
     def test_auth_user_create_note(self):
         note_count_before_post = Note.objects.count()
-        response = self.author_client.post(self.url, data=self.form_data)
+        response = self.author_client.post(self.add_url, data=self.form_data)
         self.assertRedirects(response, reverse('notes:success'))
         note_count_after_post = Note.objects.count()
         self.assertEqual(note_count_before_post, note_count_after_post)
@@ -80,7 +82,7 @@ class TestNoteCreation(TestCase):
         self.assertEqual(self.note.text, self.NOTE_TEXT_EDIT)
         self.assertEqual(self.note.title, self.NOTE_TITLE_EDIT)
         self.assertEqual(self.note.author, self.author)
-        self.assertEqual(self.note.slug, self.generated_slug)
+        self.assertEqual(self.note.slug, self.new_generated_slug)
 
     def test_user_cant_edit_note_of_another_user(self):
         response = self.another_user_client.post(
@@ -98,7 +100,7 @@ class TestNoteCreation(TestCase):
         ready_slug = 'test_note_1'
         slugs_id = (
             (ready_slug, ready_slug),
-            (None, self.generated_slug)
+            ('', self.generated_slug)
         )
         for slug, expected_slug in slugs_id:
             self.author_client.post(self.add_url, data={
@@ -114,9 +116,11 @@ class TestNoteCreation(TestCase):
         self.author_client.post(self.add_url, data={
             'title': self.NOTE_TITLE,
             'text': self.NOTE_TEXT,
+            'slug': self.generated_slug
         })
         with self.assertRaises(IntegrityError):
             self.author_client.post(self.add_url, data={
                 'title': self.NOTE_TITLE,
                 'text': self.NOTE_TEXT,
+                'slug': self.generated_slug
             })
