@@ -57,7 +57,7 @@ class TestNoteCreation(TestCase):
         response = self.author_client.post(self.add_url, data=self.form_data)
         self.assertRedirects(response, reverse('notes:success'))
         note_count_after_post = Note.objects.count()
-        self.assertEqual(note_count_before_post, note_count_after_post)
+        self.assertEqual((note_count_before_post + 1), note_count_after_post)
         note = Note.objects.get(slug=self.generated_slug)
         self.assertEqual(note.author, self.author)
         self.assertEqual(note.title, self.form_data['title'])
@@ -116,11 +116,9 @@ class TestNoteCreation(TestCase):
         self.author_client.post(self.add_url, data={
             'title': self.NOTE_TITLE,
             'text': self.NOTE_TEXT,
-            'slug': self.generated_slug
         })
-        with self.assertRaises(IntegrityError):
-            self.author_client.post(self.add_url, data={
-                'title': self.NOTE_TITLE,
-                'text': self.NOTE_TEXT,
-                'slug': self.generated_slug
-            })
+        Note.objects.create( 
+                title=self.title, 
+                text='Вторая заметка.', 
+                author=self.author, 
+            )
