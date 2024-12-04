@@ -27,7 +27,6 @@ class TestUrls(TestCase):
         self.author_client.force_login(self.author)
         self.other_user_client = self.client
         self.other_user_client.force_login(self.other_user)
-        self.client = self.client
 
     def test_status_code_for_different_users(self):
         client = self.client
@@ -74,13 +73,10 @@ class TestUrls(TestCase):
                 HTTPStatus.NOT_FOUND
             ),
         ]
-        for url, args, client, status in urls_args_clients_status:
+        for url, args, client_name, status in urls_args_clients_status:
             with self.subTest(url=url, client=client, status=status):
-                if args is None:
-                    url = reverse(url)
-                else:
-                    url = reverse(url, args=(args,))
-                response = self.client.get(url)
+                url = reverse(url, args=args) if args else reverse(url)
+                response = client_name.get(url)
                 self.assertEqual(response.status_code, status)
 
     def test_redirect_for_anonymous_client(self):
@@ -95,10 +91,7 @@ class TestUrls(TestCase):
         )
         for name, args in urls_args:
             with self.subTest(name=name):
-                if args is None:
-                    url = reverse(name)
-                else:
-                    url = reverse(name, args=args)
+                url = reverse(name, args=args) if args else reverse(name)
                 redirect_url = f'{login_url}?next={url}'
                 response = self.client.get(url)
                 self.assertRedirects(response, redirect_url)
