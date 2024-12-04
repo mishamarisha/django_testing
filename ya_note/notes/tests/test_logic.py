@@ -38,7 +38,7 @@ class TestNoteCreation(TestCase):
             'title': cls.NOTE_TITLE_EDIT,
             'text': cls.NOTE_TEXT_EDIT
         }
-        cls.generated_slug = slugify(cls.title)[:cls.MAX_SLUG_LENGTH]
+        cls.generated_slug = slugify(cls.NOTE_TITLE)[:cls.MAX_SLUG_LENGTH]
         cls.add_url = reverse('notes:add')
         cls.delete_url = reverse('notes:delete', args=(cls.note.slug,))
         cls.edit_url = reverse('notes:edit', args=(cls.note.slug,))

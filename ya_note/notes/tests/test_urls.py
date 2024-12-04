@@ -22,6 +22,7 @@ class TestUrls(TestCase):
             author=cls.author
 
         )
+        cls.client = cls.client()
         cls.author_client = cls.client.force_login(cls.author)
         cls.other_user_client = cls.client.force_login(cls.other_user)
 
