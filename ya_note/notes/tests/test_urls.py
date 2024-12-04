@@ -25,42 +25,43 @@ class TestUrls(TestCase):
         )
 
     def test_status_code_for_different_users(self):
-        author_client = self.client
-        author_client.force_login(self.author)
-        other_user_client = self.client
-        other_user_client.force_login(self.other_user)
         urls_args_clients_status = [
-            ('notes:home', None, self.client, HTTPStatus.OK),
-            ('users:login', None, self.client, HTTPStatus.OK),
-            ('users:logout', None, self.client, HTTPStatus.OK),
-            ('users:signup', None, self.client, HTTPStatus.OK),
-            ('notes:list', None, author_client, HTTPStatus.OK),
-            ('notes:edit', (self.note.slug,), author_client,
+            ('notes:home', None, None, HTTPStatus.OK),
+            ('users:login', None, None, HTTPStatus.OK),
+            ('users:logout', None, None, HTTPStatus.OK),
+            ('users:signup', None, None, HTTPStatus.OK),
+            ('notes:list', None, self.author, HTTPStatus.OK),
+            ('notes:edit', (self.note.slug,), self.author,
              HTTPStatus.OK),
-            ('notes:detail', (self.note.slug,), author_client,
+            ('notes:detail', (self.note.slug,), self.author,
              HTTPStatus.OK),
-            ('notes:delete', (self.note.slug,), author_client,
+            ('notes:delete', (self.note.slug,), self.author,
              HTTPStatus.OK),
-            ('notes:edit', (self.note.slug,), other_user_client,
+            ('notes:edit', (self.note.slug,), self.other_user,
              HTTPStatus.NOT_FOUND),
-            ('notes:detail', (self.note.slug,), other_user_client,
+            ('notes:detail', (self.note.slug,), self.other_user,
              HTTPStatus.NOT_FOUND),
-            ('notes:delete', (self.note.slug,), other_user_client,
+            ('notes:delete', (self.note.slug,), self.other_user,
              HTTPStatus.NOT_FOUND),
         ]
 
         for (
             url_name,
             args,
-            client,
+            user,
             expected_status
         ) in urls_args_clients_status:
             with self.subTest(
-                url=url_name, client=client, status=expected_status
+                url=url_name, user=user, status=expected_status
             ):
                 url = (reverse(url_name, args=args) if args else reverse(
                     url_name))
-                response = client.get(url)
+                if user:
+                    client = self.client
+                    client.force_login(user)
+                    response = client.get(url)
+                else:
+                    response = self.client.get(url)
                 self.assertEqual(response.status_code, expected_status)
 
     def test_redirect_for_anonymous_client(self):
