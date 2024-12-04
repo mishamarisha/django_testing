@@ -60,8 +60,8 @@ class TestNoteCreation(TestCase):
         self.assertEqual((note_count_before_post + 1), note_count_after_post)
         note = Note.objects.get(slug=self.generated_slug)
         self.assertEqual(note.author, self.author)
-        self.assertEqual(note.title, self.form_data['title'])
-        self.assertEqual(note.text, self.form_data['text'])
+        self.assertEqual(note.title, self.NOTE_TITLE)
+        self.assertEqual(note.text, self.NOTE_TEXT)
 
     def test_author_can_delete_note(self):
         response = self.author_client.delete(self.delete_url)
@@ -119,7 +119,7 @@ class TestNoteCreation(TestCase):
         })
         with self.assertRaises(IntegrityError):
             Note.objects.create(
-                title=self.title,
+                title=self.NOTE_TITLE,
                 text='Вторая заметка.',
                 author=self.author,
             )

@@ -25,6 +25,13 @@ class TestUrls(TestCase):
         cls.author_client = cls.client.force_login(cls.author)
         cls.other_user_client = cls.client.force_login(cls.other_user)
 
+    def setUp(self):
+        self.author_client = self.client
+        self.author_client.force_login(self.author)
+        self.other_user_client = self.client
+        self.other_user_client.force_login(self.other_user)
+        self.client = self.client
+
     def test_status_code_for_different_users(self):
         urls_args_clients_status = [
             ('notes:home', None, self.client, HTTPStatus.OK),
