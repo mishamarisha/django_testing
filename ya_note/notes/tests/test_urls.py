@@ -14,17 +14,20 @@ class TestUrls(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.author = User.objects.create(username='Автор Заметки')
-        cls.other_user = User.objects.create(username='Другой Пользователь')
+        cls.author = User.objects.create_user(username='Автор Заметки')
+        cls.other_user = User.objects.create_user(
+            username='Другой Пользователь')
         cls.note = Note.objects.create(
             title='Название заметки',
-            text='Текст из одного предложения.',
+            text='Текст заметки.',
+            slug='test-slug',
             author=cls.author
         )
 
     def setUp(self):
         self.author_client = self.client
         self.author_client.force_login(self.author)
+
         self.other_user_client = self.client
         self.other_user_client.force_login(self.other_user)
 
@@ -35,59 +38,45 @@ class TestUrls(TestCase):
             ('users:logout', None, self.client, HTTPStatus.OK),
             ('users:signup', None, self.client, HTTPStatus.OK),
             ('notes:list', None, self.author_client, HTTPStatus.OK),
-            (
-                'notes:edit',
-                self.note.slug,
-                self.author_client,
-                HTTPStatus.OK
-            ),
-            (
-                'notes:detail',
-                self.note.slug,
-                self.author_client,
-                HTTPStatus.OK
-            ),
-            (
-                'notes:delete',
-                self.note.slug,
-                self.author_client,
-                HTTPStatus.OK
-            ),
-            (
-                'notes:edit',
-                self.note.slug,
-                self.other_user_client,
-                HTTPStatus.NOT_FOUND
-            ),
-            (
-                'notes:detail',
-                self.note.slug,
-                self.other_user_client,
-                HTTPStatus.NOT_FOUND
-            ),
-            (
-                'notes:delete',
-                self.note.slug,
-                self.other_user_client,
-                HTTPStatus.NOT_FOUND
-            ),
+            ('notes:edit', (self.note.slug,), self.author_client,
+             HTTPStatus.OK),
+            ('notes:detail', (self.note.slug,), self.author_client,
+             HTTPStatus.OK),
+            ('notes:delete', (self.note.slug,), self.author_client,
+             HTTPStatus.OK),
+            ('notes:edit', (self.note.slug,), self.other_user_client,
+             HTTPStatus.NOT_FOUND),
+            ('notes:detail', (self.note.slug,), self.other_user_client,
+             HTTPStatus.NOT_FOUND),
+            ('notes:delete', (self.note.slug,), self.other_user_client,
+             HTTPStatus.NOT_FOUND),
         ]
-        for url, args, client_name, status in urls_args_clients_status:
-            with self.subTest(url=url, client=client_name, status=status):
-                url = reverse(url, args=(args,)) if args else reverse(url)
-                response = client_name.get(url)
-                self.assertEqual(response.status_code, status)
+
+        for (
+            url_name,
+            args,
+            client,
+            expected_status
+        ) in urls_args_clients_status:
+            with self.subTest(
+                url=url_name, client=client, status=expected_status
+            ):
+                url = (reverse(url_name, args=args) if args else reverse(
+                    url_name))
+                response = client.get(url)
+                self.assertEqual(response.status_code, expected_status)
 
     def test_redirect_for_anonymous_client(self):
         login_url = reverse('users:login')
-        urls_args = (
+        urls_args = [
             ('notes:list', None),
             ('notes:add', None),
             ('notes:success', None),
             ('notes:detail', (self.note.slug,)),
             ('notes:edit', (self.note.slug,)),
             ('notes:delete', (self.note.slug,))
-        )
+        ]
+
         for name, args in urls_args:
             with self.subTest(name=name):
                 url = reverse(name, args=args) if args else reverse(name)
