@@ -46,13 +46,13 @@ class TestNoteCreation(TestCase):
 
     def test_annonymous_user_cant_create_note(self):
         note_count_before_post = Note.objects.count()
-        self.client.post(self.url, data=self.form_data)
+        self.client.post(self.add_url, data=self.form_data)
         note_count_after_post = Note.objects.count()
         self.assertEqual(note_count_before_post, note_count_after_post)
 
     def test_auth_user_create_note(self):
         note_count_before_post = Note.objects.count()
-        response = self.auth_client.post(self.url, data=self.form_data)
+        response = self.author_client.post(self.url, data=self.form_data)
         self.assertRedirects(response, reverse('notes:success'))
         note_count_after_post = Note.objects.count()
         self.assertEqual(note_count_before_post, note_count_after_post)
@@ -101,7 +101,7 @@ class TestNoteCreation(TestCase):
             (None, self.generated_slug)
         )
         for slug, expected_slug in slugs_id:
-            self.author_client.post(self.create_url, data={
+            self.author_client.post(self.add_url, data={
                 'title': self.NOTE_TITLE,
                 'text': self.NOTE_TEXT,
                 'slug': slug
@@ -111,12 +111,12 @@ class TestNoteCreation(TestCase):
                 self.assertIsNotNone(note)
 
     def test_slug_unique(self):
-        self.author_client.post(self.create_url, data={
+        self.author_client.post(self.add_url, data={
             'title': self.NOTE_TITLE,
             'text': self.NOTE_TEXT,
         })
         with self.assertRaises(IntegrityError):
-            self.author_client.post(self.create_url, data={
+            self.author_client.post(self.add_url, data={
                 'title': self.NOTE_TITLE,
                 'text': self.NOTE_TEXT,
             })
