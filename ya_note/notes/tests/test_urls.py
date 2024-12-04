@@ -20,10 +20,7 @@ class TestUrls(TestCase):
             title='Название заметки',
             text='Текст из одного предложения.',
             author=cls.author
-
         )
-        cls.author_client = cls.client.force_login(cls.author)
-        cls.other_user_client = cls.client.force_login(cls.other_user)
 
     def setUp(self):
         self.author_client = self.client
