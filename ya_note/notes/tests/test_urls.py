@@ -24,31 +24,28 @@ class TestUrls(TestCase):
             author=cls.author
         )
 
-    def setUp(self):
-        self.author_client = self.client
-        self.author_client.force_login(self.author)
-
-        self.other_user_client = self.client
-        self.other_user_client.force_login(self.other_user)
-
     def test_status_code_for_different_users(self):
+        author_client = self.client
+        author_client.force_login(self.author)
+        other_user_client = self.client
+        other_user_client.force_login(self.other_user)
         urls_args_clients_status = [
             ('notes:home', None, self.client, HTTPStatus.OK),
             ('users:login', None, self.client, HTTPStatus.OK),
             ('users:logout', None, self.client, HTTPStatus.OK),
             ('users:signup', None, self.client, HTTPStatus.OK),
-            ('notes:list', None, self.author_client, HTTPStatus.OK),
-            ('notes:edit', (self.note.slug,), self.author_client,
+            ('notes:list', None, author_client, HTTPStatus.OK),
+            ('notes:edit', (self.note.slug,), author_client,
              HTTPStatus.OK),
-            ('notes:detail', (self.note.slug,), self.author_client,
+            ('notes:detail', (self.note.slug,), author_client,
              HTTPStatus.OK),
-            ('notes:delete', (self.note.slug,), self.author_client,
+            ('notes:delete', (self.note.slug,), author_client,
              HTTPStatus.OK),
-            ('notes:edit', (self.note.slug,), self.other_user_client,
+            ('notes:edit', (self.note.slug,), other_user_client,
              HTTPStatus.NOT_FOUND),
-            ('notes:detail', (self.note.slug,), self.other_user_client,
+            ('notes:detail', (self.note.slug,), other_user_client,
              HTTPStatus.NOT_FOUND),
-            ('notes:delete', (self.note.slug,), self.other_user_client,
+            ('notes:delete', (self.note.slug,), other_user_client,
              HTTPStatus.NOT_FOUND),
         ]
 
