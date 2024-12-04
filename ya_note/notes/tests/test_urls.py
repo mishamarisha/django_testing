@@ -33,12 +33,13 @@ class TestUrls(TestCase):
         self.client = self.client
 
     def test_status_code_for_different_users(self):
+        client = self.client
         urls_args_clients_status = [
-            ('notes:home', None, self.client, HTTPStatus.OK),
-            ('users:login', None, self.client, HTTPStatus.OK),
-            ('users:logout', None, self.client, HTTPStatus.OK),
-            ('users:signup', None, self.client, HTTPStatus.OK),
-            ('notes:list', None, self.author_client, HTTPStatus.OK),
+            ('notes:home', None, client, HTTPStatus.OK),
+            ('users:login', None, client, HTTPStatus.OK),
+            ('users:logout', None, client, HTTPStatus.OK),
+            ('users:signup', None, client, HTTPStatus.OK),
+            ('notes:list', None, author_client, HTTPStatus.OK),
             (
                 'notes:edit',
                 self.note.slug,
