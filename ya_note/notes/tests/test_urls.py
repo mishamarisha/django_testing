@@ -22,32 +22,58 @@ class TestUrls(TestCase):
             author=cls.author
 
         )
+        cls.author_client = cls.client.force_login(cls.author)
+        cls.other_user_client = cls.client.force_login(cls.other_user)
 
-    def test_pages_for_all_users(self):
-        urls = ('notes:home', 'users:login', 'users:logout', 'users:signup')
-        for url in urls:
-            with self.subTest(url=url):
-                response = self.client.get(reverse(url))
-                self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    def test_note_list(self):
-        self.client.force_login(self.author)
-        url = reverse('notes:list')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    def test_only_author(self):
-        users_statuses = (
-            (self.author, HTTPStatus.OK),
-            (self.other_user, HTTPStatus.NOT_FOUND),
-        )
-        for user, status in users_statuses:
-            self.client.force_login(user)
-            for name in ('notes:edit', 'notes:detail', 'notes:delete'):
-                with self.subTest(user=user, name=name):
-                    url = reverse(name, args=(self.note.slug,))
-                    response = self.client.get(url)
-                    self.assertEqual(response.status_code, status)
+    def test_status_code_for_different_users(self):
+        urls_args_clients_status = [
+            ('notes:home', None, self.client, HTTPStatus.OK),
+            ('users:login', None, self.client, HTTPStatus.OK),
+            ('users:logout', None, self.client, HTTPStatus.OK),
+            ('users:signup', None, self.client, HTTPStatus.OK),
+            ('notes:list', None, self.author_client, HTTPStatus.OK),
+            (
+                'notes:edit',
+                self.note.slug,
+                self.author_client,
+                HTTPStatus.OK
+            ),
+            (
+                'notes:detail',
+                self.note.slug,
+                self.author_client,
+                HTTPStatus.OK
+            ),
+            (
+                'notes:delete',
+                self.note.slug,
+                self.author_client,
+                HTTPStatus.OK
+            ),
+            (
+                'notes:edit',
+                self.note.slug,
+                self.other_user_client,
+                HTTPStatus.NOT_FOUND
+            ),
+            (
+                'notes:detail',
+                self.note.slug,
+                self.other_user_client,
+                HTTPStatus.NOT_FOUND
+            ),
+            (
+                'notes:delete',
+                self.note.slug,
+                self.other_user_client,
+                HTTPStatus.NOT_FOUND
+            ),
+        ]
+        for url, args, client, status in urls_args_clients_status:
+            with self.subTest(url=url, client=client, status=status):
+                url = reverse(url, args=(args,))
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, status)
 
     def test_redirect_for_anonymous_client(self):
         login_url = reverse('users:login')

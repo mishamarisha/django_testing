@@ -1,6 +1,6 @@
-import pytest
 from datetime import datetime, timedelta
 
+import pytest
 from django.conf import settings
 from django.test.client import Client
 
@@ -21,6 +21,12 @@ def not_author(django_user_model):
 def author_client(author):
     client = Client()
     client.force_login(author)
+    return client
+
+
+@pytest.fixture
+def default_client(author):
+    client = Client()
     return client
 
 
@@ -66,13 +72,11 @@ def news_list():
 
 @pytest.fixture
 def comment_list(news, author):
-    today = datetime.today()
     all_comments = [
         Comment(
             news=news,
-            text='Текст заметки',
-            author=author,
-            created=today - timedelta(days=index)
+            text='Текст комментария',
+            author=author
         )
         for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
     ]

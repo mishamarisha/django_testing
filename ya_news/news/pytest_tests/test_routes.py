@@ -1,46 +1,78 @@
-import pytest
 from http import HTTPStatus
 
+import pytest
 from django.urls import reverse
 from pytest_django.asserts import assertRedirects
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'name',
-    ('news:home', 'users:login', 'users:logout', 'users:signup')
+    'name, args, client_name, status',
+    [
+        (
+            'news:home',
+            None,
+            pytest.lazy_fixture('default_client'),
+            HTTPStatus.OK
+        ),
+        (
+            'users:login',
+            None,
+            pytest.lazy_fixture('default_client'),
+            HTTPStatus.OK
+        ),
+        (
+            'users:logout',
+            None,
+            pytest.lazy_fixture('default_client'),
+            HTTPStatus.OK
+        ),
+        (
+            'users:signup',
+            None, pytest.lazy_fixture('default_client'),
+            HTTPStatus.OK
+        ),
+        (
+            'news:detail',
+            'news.id',
+            pytest.lazy_fixture('default_client'),
+            HTTPStatus.OK
+        ),
+        (
+            'news:edit',
+            'comment.id',
+            pytest.lazy_fixture('author_client'),
+            HTTPStatus.OK
+        ),
+        (
+            'news:delete',
+            'comment.id',
+            pytest.lazy_fixture('author_client'),
+            HTTPStatus.OK
+        ),
+        (
+            'news:edit',
+            'comment.id',
+            pytest.lazy_fixture('not_author_client'),
+            HTTPStatus.NOT_FOUND
+        ),
+        (
+            'news:delete',
+            'comment.id',
+            pytest.lazy_fixture('not_author_client'),
+            HTTPStatus.NOT_FOUND
+        )
+    ]
 )
-def test_pages_availability_for_anonymous_user(client, name):
-    url = reverse(name)
-    response = client.get(url)
-    assert response.status_code == HTTPStatus.OK
-
-
-@pytest.mark.django_db
-def test_news_page_availability_for_anonymous_user(client, news):
-    url = reverse('news:detail', args=(news.id,))
-    response = client.get(url)
-    assert response.status_code == HTTPStatus.OK
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize(
-    'parametrized_client, expected_status',
-    (
-        (pytest.lazy_fixture('not_author_client'), HTTPStatus.NOT_FOUND),
-        (pytest.lazy_fixture('author_client'), HTTPStatus.OK)
-    ),
-)
-@pytest.mark.parametrize(
-    'name',
-    ('news:edit', 'news:delete')
-)
-def test_pages_availability_for_author(
-    parametrized_client, name, comment, expected_status
-):
-    url = reverse(name, args=(comment.id,))
-    response = parametrized_client.get(url)
-    assert response.status_code == expected_status
+def test_pages_availability(name, args, client_name, status, news, comment):
+    if args == 'news.id':
+        url = reverse(name, args=(news.id,))
+    elif args == 'comment.id':
+        url = reverse(name, args=(comment.id,))
+    else:
+        url = reverse(name)
+    response = client_name.get(url)
+    assert response.status_code == status
 
 
 @pytest.mark.django_db

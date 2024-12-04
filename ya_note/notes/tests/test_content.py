@@ -1,9 +1,9 @@
 from django.test import Client, TestCase
-
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from notes.models import Note
+from notes.forms import NoteForm
 
 
 User = get_user_model()
@@ -21,28 +21,25 @@ class TestNotesContext(TestCase):
         cls.another_user = User.objects.create(username='Другой пользователь')
         cls.another_user_client = Client()
         cls.another_user_client.force_login(cls.another_user)
-        all_notes = [
-            Note(
-                title=f'Заметка {index}',
-                text=f'Текст заметки {index}',
-                slug=f'test_note_{index}',
-                author=cls.author
-            )for index in range(1, cls.NOTES_COUNT_FOR_TEST + 1)
-        ]
-        Note.objects.bulk_create(all_notes)
+        cls.slug = 'test_note'
+        Note.objects.create(
+            title='Заметка',
+            text='Текст заметки',
+            slug=cls.slug,
+            author=cls.author
+        )
 
     def test_note_in_object_list(self):
         response = self.author_client.get(reverse('notes:list'))
         object_list = response.context['object_list']
-        note_in_context = object_list[0]
-        first_note = Note.objects.filter(author=self.author).first()
-        self.assertEqual(note_in_context, first_note)
+        note = Note.objects.get(slug=self.slug)
+        self.assertIn(note, object_list)
 
     def test_not_notes_other_author(self):
         response = self.another_user_client.get(reverse('notes:list'))
         object_list = response.context['object_list']
-        note_count = object_list.count()
-        self.assertEqual(note_count, 0)
+        note = Note.objects.get(slug=self.slug)
+        self.assertNotIn(note, object_list)
 
     def test_form_in_context(self):
         note = Note.objects.first()
@@ -50,5 +47,5 @@ class TestNotesContext(TestCase):
         for url, kwargs in urls_kwarg:
             with self.subTest(url=url):
                 response = self.author_client.get(reverse(url, kwargs=kwargs))
-                form = 'form' in response.context
-                self.assertTrue(form)
+                form = response.context.get('form')
+                self.assertIsInstance(form, NoteForm)

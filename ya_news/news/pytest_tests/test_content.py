@@ -1,9 +1,9 @@
 import pytest
-
 from django.conf import settings
 from django.urls import reverse
 
 from news.models import News, Comment
+from news.forms import CommentForm
 
 
 @pytest.mark.django_db
@@ -48,3 +48,5 @@ def test_commentform_availability(request, client_fixture, form_on_page, news):
     response = client.get(url)
     form = 'form' in response.context
     assert form == form_on_page
+    if form_on_page:
+        assert isinstance(response.context.get('form'), CommentForm)
