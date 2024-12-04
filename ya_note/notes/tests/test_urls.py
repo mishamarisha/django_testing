@@ -76,7 +76,10 @@ class TestUrls(TestCase):
         ]
         for url, args, client, status in urls_args_clients_status:
             with self.subTest(url=url, client=client, status=status):
-                url = reverse(url, args=(args,))
+                if args is None:
+                    url = reverse(url)
+                else:
+                    url = reverse(url, args=(args,))
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, status)
 
