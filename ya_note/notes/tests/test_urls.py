@@ -29,12 +29,11 @@ class TestUrls(TestCase):
         self.other_user_client.force_login(self.other_user)
 
     def test_status_code_for_different_users(self):
-        client = self.client
         urls_args_clients_status = [
-            ('notes:home', None, client, HTTPStatus.OK),
-            ('users:login', None, client, HTTPStatus.OK),
-            ('users:logout', None, client, HTTPStatus.OK),
-            ('users:signup', None, client, HTTPStatus.OK),
+            ('notes:home', None, self.client, HTTPStatus.OK),
+            ('users:login', None, self.client, HTTPStatus.OK),
+            ('users:logout', None, self.client, HTTPStatus.OK),
+            ('users:signup', None, self.client, HTTPStatus.OK),
             ('notes:list', None, self.author_client, HTTPStatus.OK),
             (
                 'notes:edit',
@@ -74,7 +73,7 @@ class TestUrls(TestCase):
             ),
         ]
         for url, args, client_name, status in urls_args_clients_status:
-            with self.subTest(url=url, client=client, status=status):
+            with self.subTest(url=url, client=client_name, status=status):
                 url = reverse(url, args=(args,)) if args else reverse(url)
                 response = client_name.get(url)
                 self.assertEqual(response.status_code, status)
