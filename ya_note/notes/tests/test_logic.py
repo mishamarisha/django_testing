@@ -117,8 +117,9 @@ class TestNoteCreation(TestCase):
             'title': self.NOTE_TITLE,
             'text': self.NOTE_TEXT,
         })
-        Note.objects.create( 
-                title=self.title, 
-                text='Вторая заметка.', 
-                author=self.author, 
+        with self.assertRaises(IntegrityError):
+            Note.objects.create(
+                title=self.title,
+                text='Вторая заметка.',
+                author=self.author,
             )
