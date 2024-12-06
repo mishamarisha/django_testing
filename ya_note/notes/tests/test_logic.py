@@ -77,7 +77,7 @@ class TestNoteCreation(TestCase):
         note_before_edit = Note.objects.get(slug=self.generated_slug)
         response = self.author_client.post(self.edit_url, data=self.form_data)
         self.assertRedirects(response, self.redirect_url)
-        note_after_edit = Note.objects.get(slug=self.generated_slug)
+        note_after_edit = Note.objects.get(slug=self.new_generated_slug)
         self.assertEqual(note_after_edit.text, self.NOTE_TEXT_EDIT)
         self.assertEqual(note_after_edit.title, self.NOTE_TITLE_EDIT)
         self.assertEqual(note_after_edit.author, note_before_edit.author)
@@ -117,11 +117,10 @@ class TestNoteCreation(TestCase):
             'text': self.NOTE_TEXT,
         })
         before_note_count = Note.objects.count()
-        response = Note.objects.create(
-            title=self.NOTE_TITLE,
-            text='Вторая заметка.',
-            author=self.author,
-        )
+        response = self.author_client.post(self.add_url, data={
+            'title': self.NOTE_TITLE,
+            'text': self.NOTE_TEXT,
+        })
         self.assertFormError(
             response,
             form='form',
