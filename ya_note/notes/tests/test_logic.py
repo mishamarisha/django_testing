@@ -125,7 +125,7 @@ class TestNoteCreation(TestCase):
             response,
             form='form',
             field='slug',
-            errors=f'{self.generated_slug} - такой slug уже существует,'
+            errors=f'{self.generated_slug} - такой slug уже существует, '
             'придумайте уникальное значение!'
         )
         self.assertEqual(Note.objects.count(), before_note_count)
