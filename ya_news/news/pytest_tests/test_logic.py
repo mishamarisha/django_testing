@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 import pytest
+from pytest_django.asserts import assertFormError
 from pytest_django.asserts import assertRedirects
 from django.urls import reverse
 
@@ -80,5 +81,5 @@ def test_user_cant_use_bad_words(author_client, news):
     url = reverse('news:detail', args=(news.id,))
     response = author_client.post(url, data=bad_words_data)
     assert response.status_code == HTTPStatus.OK
-    pytest.assertFormError(response, 'form', 'text', WARNING)
+    assertFormError(response, 'form', 'text', WARNING)
     assert Comment.objects.count() == before_post_count
