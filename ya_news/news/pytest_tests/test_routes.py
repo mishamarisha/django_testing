@@ -13,21 +13,21 @@ from pytest_django.asserts import assertRedirects
         ('users:login', None, 'default_client', HTTPStatus.OK),
         ('users:logout', None, 'default_client', HTTPStatus.OK),
         ('users:signup', None, 'default_client', HTTPStatus.OK),
-        ('news:detail', pytest.lazy_fixture('news_id'), 'default_client',
+        ('news:detail', pytest.lazy_fixture('news'), 'default_client',
          HTTPStatus.OK),
-        ('news:edit', pytest.lazy_fixture('comment_id'), 'author_client',
+        ('news:edit', pytest.lazy_fixture('comment'), 'author_client',
          HTTPStatus.OK),
-        ('news:delete', pytest.lazy_fixture('comment_id'), 'author_client',
+        ('news:delete', pytest.lazy_fixture('comment'), 'author_client',
          HTTPStatus.OK),
-        ('news:edit', pytest.lazy_fixture('comment_id'), 'not_author_client',
+        ('news:edit', pytest.lazy_fixture('comment'), 'not_author_client',
          HTTPStatus.NOT_FOUND),
-        ('news:delete', pytest.lazy_fixture('comment_id'), 'not_author_client',
+        ('news:delete', pytest.lazy_fixture('comment'), 'not_author_client',
          HTTPStatus.NOT_FOUND),
     ]
 )
 def test_pages_availability(url, args, client_name, status, request):
     client_name = request.getfixturevalue(client_name)
-    url = reverse(url, args=(args,)) if args else reverse(url)
+    url = reverse(url, args=(args.id,)) if args else reverse(url)
     response = client_name.get(url)
     assert response.status_code == status
 
