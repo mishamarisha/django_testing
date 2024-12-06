@@ -36,17 +36,17 @@ def test_order(client, model_class, date_field):
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize(
-    'client_fixture, form_on_page',
-    (
-        ('client', False),
-        ('not_author_client', True),)
-)
-def test_commentform_availability(request, client_fixture, form_on_page, news):
-    client = request.getfixturevalue(client_fixture)
+def test_commentform_for_auth_user(news, not_author_client):
+    url = reverse('news:detail', args=(news.id,))
+    response = not_author_client.get(url)
+    form = 'form' in response.context
+    assert form is True
+    assert isinstance(response.context.get('form'), CommentForm)
+
+
+@pytest.mark.django_db
+def test_commentform_for_anonymous_user(client, news):
     url = reverse('news:detail', args=(news.id,))
     response = client.get(url)
     form = 'form' in response.context
-    assert form == form_on_page
-    if form_on_page:
-        assert isinstance(response.context.get('form'), CommentForm)
+    assert form is False

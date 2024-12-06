@@ -7,70 +7,56 @@ from pytest_django.asserts import assertRedirects
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'name, args, client_name, status',
+    'url, client_name, status',
     [
         (
-            'news:home',
-            None,
+            reverse('news:home'),
             pytest.lazy_fixture('default_client'),
             HTTPStatus.OK
         ),
         (
-            'users:login',
-            None,
+            reverse('users:login'),
             pytest.lazy_fixture('default_client'),
             HTTPStatus.OK
         ),
         (
-            'users:logout',
-            None,
+            reverse('users:logout'),
             pytest.lazy_fixture('default_client'),
             HTTPStatus.OK
         ),
         (
-            'users:signup',
-            None, pytest.lazy_fixture('default_client'),
-            HTTPStatus.OK
-        ),
-        (
-            'news:detail',
-            'news.id',
+            reverse('users:signup'),
             pytest.lazy_fixture('default_client'),
             HTTPStatus.OK
         ),
         (
-            'news:edit',
-            'comment.id',
+            reverse('news:detail', args=(pytest.lazy_fixture('news').id,)),
+            pytest.lazy_fixture('default_client'),
+            HTTPStatus.OK
+        ),
+        (
+            reverse('news:edit', args=(pytest.lazy_fixture('comment').id,)),
             pytest.lazy_fixture('author_client'),
             HTTPStatus.OK
         ),
         (
-            'news:delete',
-            'comment.id',
+            reverse('news:delete', args=(pytest.lazy_fixture('comment').id,)),
             pytest.lazy_fixture('author_client'),
             HTTPStatus.OK
         ),
         (
-            'news:edit',
-            'comment.id',
+            reverse('news:edit', args=(pytest.lazy_fixture('comment').id,)),
             pytest.lazy_fixture('not_author_client'),
             HTTPStatus.NOT_FOUND
         ),
         (
-            'news:delete',
-            'comment.id',
+            reverse('news:delete', args=(pytest.lazy_fixture('comment').id,)),
             pytest.lazy_fixture('not_author_client'),
             HTTPStatus.NOT_FOUND
         )
     ]
 )
-def test_pages_availability(name, args, client_name, status, news, comment):
-    if args == 'news.id':
-        url = reverse(name, args=(news.id,))
-    elif args == 'comment.id':
-        url = reverse(name, args=(comment.id,))
-    else:
-        url = reverse(name)
+def test_pages_availability(url, client_name, status):
     response = client_name.get(url)
     assert response.status_code == status
 

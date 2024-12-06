@@ -25,7 +25,7 @@ def author_client(author):
 
 
 @pytest.fixture
-def default_client(author):
+def default_client():
     client = Client()
     return client
 
@@ -72,15 +72,16 @@ def news_list():
 
 @pytest.fixture
 def comment_list(news, author):
-    all_comments = [
-        Comment(
+    current_time = datetime.today()
+    all_comments = []
+    for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1):
+        comment = Comment.objects.create(
             news=news,
-            text='Текст комментария',
-            author=author
+            text=f'Текст комментария {index}',
+            author=author,
+            created=current_time - timedelta(minutes=index)
         )
-        for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
-    ]
-    Comment.objects.bulk_create(all_comments)
+        all_comments.append(comment)
 
 
 @pytest.fixture
