@@ -59,8 +59,8 @@ class TestNoteCreation(TestCase):
         self.assertEqual(len(new_note), 1)
         note = new_note.pop()
         self.assertEqual(note.author, self.author)
-        self.assertEqual(note.title, self.NOTE_TITLE)
-        self.assertEqual(note.text, self.NOTE_TEXT)
+        self.assertEqual(note.title, self.NOTE_TITLE_EDIT)
+        self.assertEqual(note.text, self.NOTE_TEXT_EDIT)
 
     def test_author_can_delete_note(self):
         response = self.author_client.delete(self.delete_url)
@@ -99,17 +99,17 @@ class TestNoteCreation(TestCase):
         note_list_before_post = set(Note.objects.all())
         self.client.force_login(self.author)
         self.author_client.post(self.add_url, data={
-            'title': self.NOTE_TITLE,
-            'text': self.NOTE_TEXT,
+            'title': self.NOTE_TITLE_EDIT,
+            'text': self.NOTE_TEXT_EDIT,
             'slug': ''
         })
         note_list_after_post = set(Note.objects.all())
         new_note = note_list_after_post.difference(note_list_before_post)
         note = new_note.pop()
         self.assertEqual(note.author, self.author)
-        self.assertEqual(note.title, self.NOTE_TITLE)
-        self.assertEqual(note.text, self.NOTE_TEXT)
-        self.assertEqual(note.slug, self.generated_slug)
+        self.assertEqual(note.title, self.NOTE_TITLE_EDIT)
+        self.assertEqual(note.text, self.NOTE_TEXT_EDIT)
+        self.assertEqual(note.slug, self.new_generated_slug)
 
     def test_slug_unique(self):
         self.author_client.post(self.add_url, data={
