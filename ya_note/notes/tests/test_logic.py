@@ -124,7 +124,7 @@ class TestNoteCreation(TestCase):
         self.assertFormError(
             response,
             form='form',
-            field='title',
+            field='slug',
             errors=' - такой slug уже существует,'
             'придумайте уникальное значение!'
         )
