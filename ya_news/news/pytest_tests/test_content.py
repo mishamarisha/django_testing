@@ -39,7 +39,7 @@ def test_order(client, model_class, date_field):
 def test_commentform_for_auth_user(news, not_author_client):
     url = reverse('news:detail', args=(news.id,))
     response = not_author_client.get(url)
-    assert 'form' in response.context is True
+    assert ('form' in response.context) is True
     assert isinstance(response.context.get('form'), CommentForm)
 
 
@@ -47,4 +47,4 @@ def test_commentform_for_auth_user(news, not_author_client):
 def test_commentform_for_anonymous_user(client, news):
     url = reverse('news:detail', args=(news.id,))
     response = client.get(url)
-    assert 'form' in response.context is False
+    assert ('form' in response.context) is False
