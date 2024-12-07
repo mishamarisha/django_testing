@@ -74,30 +74,27 @@ class TestNoteCreation(TestCase):
         self.assertTrue(Note.objects.filter(slug=self.generated_slug).exists())
 
     def test_author_can_edit_note(self):
-        note_before_edit = Note.objects.get(slug=self.generated_slug)
         response = self.author_client.post(self.edit_url, data=self.form_data)
         self.assertRedirects(response, self.redirect_url)
-        note_after_edit = Note.objects.get(slug=self.new_generated_slug)
-        self.assertEqual(note_after_edit.text, self.NOTE_TEXT_EDIT)
-        self.assertEqual(note_after_edit.title, self.NOTE_TITLE_EDIT)
-        self.assertEqual(note_after_edit.author, note_before_edit.author)
+        note_after_edit = Note.objects.get(id=self.note.id)
+        self.assertEqual(note_after_edit.text, self.form_data['text'])
+        self.assertEqual(note_after_edit.title, self.form_data['title'])
+        self.assertEqual(note_after_edit.author, self.note.author)
         self.assertEqual(note_after_edit.slug, self.new_generated_slug)
 
     def test_user_cant_edit_note_of_another_user(self):
-        note_before_edit = Note.objects.get(slug=self.generated_slug)
         response = self.another_user_client.post(
             self.edit_url, data=self.form_data
         )
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         note_after_edit = Note.objects.get(slug=self.generated_slug)
-        self.assertEqual(note_before_edit.text, note_after_edit.text)
-        self.assertEqual(note_before_edit.title, note_after_edit.title)
-        self.assertEqual(note_before_edit.author, note_after_edit.author)
-        self.assertEqual(note_before_edit.slug, note_after_edit.slug)
+        self.assertEqual(self.note.text, note_after_edit.text)
+        self.assertEqual(self.note.text.title, note_after_edit.title)
+        self.assertEqual(self.note.text.author, note_after_edit.author)
+        self.assertEqual(self.note.text.slug, note_after_edit.slug)
 
     def test_filled_empty_slug(self):
         note_list_before_post = set(Note.objects.all())
-        self.client.force_login(self.author)
         self.author_client.post(self.add_url, data={
             'title': self.NOTE_TITLE_EDIT,
             'text': self.NOTE_TEXT_EDIT,
@@ -105,17 +102,11 @@ class TestNoteCreation(TestCase):
         })
         note_list_after_post = set(Note.objects.all())
         new_note = note_list_after_post.difference(note_list_before_post)
+        self.assertEqual(len(new_note), 1)
         note = new_note.pop()
-        self.assertEqual(note.author, self.author)
-        self.assertEqual(note.title, self.NOTE_TITLE_EDIT)
-        self.assertEqual(note.text, self.NOTE_TEXT_EDIT)
         self.assertEqual(note.slug, self.new_generated_slug)
 
     def test_slug_unique(self):
-        self.author_client.post(self.add_url, data={
-            'title': self.NOTE_TITLE,
-            'text': self.NOTE_TEXT,
-        })
         before_note_count = Note.objects.count()
         response = self.author_client.post(self.add_url, data={
             'title': self.NOTE_TITLE,

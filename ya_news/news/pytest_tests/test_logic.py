@@ -17,8 +17,8 @@ def test_user_can_create_comment(author_client, author, form_data, news):
     assertRedirects(response, expected_url)
     comment_list_after_post = set(Comment.objects.all())
     new_comment = comment_list_after_post.difference(comment_list_before_post)
+    assert len(new_comment) == 1
     comment = new_comment.pop()
-    assert comment is not None
     assert comment.text == form_data['text']
     assert comment.author == author
     assert comment.news.id == news.id

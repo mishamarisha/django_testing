@@ -11,8 +11,6 @@ User = get_user_model()
 
 class TestNotesContext(TestCase):
 
-    NOTES_COUNT_FOR_TEST = 5
-
     @classmethod
     def setUpTestData(cls):
         cls.author = User.objects.create(username='Автор Заметок')
@@ -22,7 +20,7 @@ class TestNotesContext(TestCase):
         cls.another_user_client = Client()
         cls.another_user_client.force_login(cls.another_user)
         cls.slug = 'test_note'
-        Note.objects.create(
+        cls.note = Note.objects.create(
             title='Заметка',
             text='Текст заметки',
             slug=cls.slug,
@@ -32,18 +30,18 @@ class TestNotesContext(TestCase):
     def test_note_in_object_list(self):
         response = self.author_client.get(reverse('notes:list'))
         object_list = response.context['object_list']
-        note = Note.objects.get(slug=self.slug)
-        self.assertIn(note, object_list)
+        self.assertIn(self.note, object_list)
 
     def test_not_notes_other_author(self):
         response = self.another_user_client.get(reverse('notes:list'))
         object_list = response.context['object_list']
-        note = Note.objects.get(slug=self.slug)
-        self.assertNotIn(note, object_list)
+        self.assertNotIn(self.note, object_list)
 
     def test_form_in_context(self):
-        note = Note.objects.first()
-        urls_kwarg = [('notes:add', None), ('notes:edit', {'slug': note.slug})]
+        urls_kwarg = [
+            ('notes:add', None),
+            ('notes:edit', {'slug': self.note.slug})
+        ]
         for url, kwargs in urls_kwarg:
             with self.subTest(url=url):
                 response = self.author_client.get(reverse(url, kwargs=kwargs))

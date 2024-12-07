@@ -23,42 +23,40 @@ class TestUrls(TestCase):
             slug='test-slug',
             author=cls.author
         )
+        cls.default_client = cls.client
+        cls.author_client = cls.client.force_login(cls.author)
+        cls.other_user_client = cls.client.force_login(cls.other_user)
 
     def test_status_code_for_different_users(self):
         urls_clients_status = [
-            (reverse('notes:home'), None, HTTPStatus.OK),
-            (reverse('users:login'), None, HTTPStatus.OK),
-            (reverse('users:logout'), None, HTTPStatus.OK),
-            (reverse('users:signup'), None, HTTPStatus.OK),
+            (reverse('notes:home'), self.default_client, HTTPStatus.OK),
+            (reverse('users:login'), self.default_client, HTTPStatus.OK),
+            (reverse('users:logout'), self.default_client, HTTPStatus.OK),
+            (reverse('users:signup'), self.default_client, HTTPStatus.OK),
             (reverse('notes:list'), self.author, HTTPStatus.OK),
-            (reverse('notes:edit', args=(self.note.slug,)), self.author,
+            (reverse('notes:edit', args=(self.note.slug,)), self.author_client,
              HTTPStatus.OK),
-            (reverse('notes:detail', args=(self.note.slug,)), self.author,
-             HTTPStatus.OK),
-            (reverse('notes:delete', args=(self.note.slug,)), self.author,
-             HTTPStatus.OK),
-            (reverse('notes:edit', args=(self.note.slug,)), self.other_user,
-             HTTPStatus.NOT_FOUND),
-            (reverse('notes:detail', args=(self.note.slug,)), self.other_user,
-             HTTPStatus.NOT_FOUND),
-            (reverse('notes:delete', args=(self.note.slug,)), self.other_user,
-             HTTPStatus.NOT_FOUND),
+            (reverse('notes:detail', args=(self.note.slug,)),
+             self.author_client, HTTPStatus.OK),
+            (reverse('notes:delete', args=(self.note.slug,)),
+             self.author_client, HTTPStatus.OK),
+            (reverse('notes:edit', args=(self.note.slug,)),
+             self.other_user_client, HTTPStatus.NOT_FOUND),
+            (reverse('notes:detail', args=(self.note.slug,)),
+             self.other_user_client, HTTPStatus.NOT_FOUND),
+            (reverse('notes:delete', args=(self.note.slug,)), 
+             self.other_user_client, HTTPStatus.NOT_FOUND),
         ]
 
         for (
             url,
-            user,
+            client,
             expected_status
         ) in urls_clients_status:
             with self.subTest(
-                url=url, user=user, status=expected_status
+                url=url, client=client, status=expected_status
             ):
-                if user:
-                    client = self.client
-                    client.force_login(user)
-                    response = self.client.get(url)
-                else:
-                    response = self.client.get(url)
+                response = client.get(url)
                 self.assertEqual(response.status_code, expected_status)
 
     def test_redirect_for_anonymous_client(self):
