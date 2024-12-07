@@ -89,9 +89,9 @@ class TestNoteCreation(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         note_after_edit = Note.objects.get(slug=self.generated_slug)
         self.assertEqual(self.note.text, note_after_edit.text)
-        self.assertEqual(self.note.text.title, note_after_edit.title)
-        self.assertEqual(self.note.text.author, note_after_edit.author)
-        self.assertEqual(self.note.text.slug, note_after_edit.slug)
+        self.assertEqual(self.note.title, note_after_edit.title)
+        self.assertEqual(self.note.author, note_after_edit.author)
+        self.assertEqual(self.note.slug, note_after_edit.slug)
 
     def test_filled_empty_slug(self):
         note_list_before_post = set(Note.objects.all())

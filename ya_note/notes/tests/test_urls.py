@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 
 from notes.models import Note
@@ -23,9 +23,11 @@ class TestUrls(TestCase):
             slug='test-slug',
             author=cls.author
         )
-        cls.default_client = cls.client
-        cls.author_client = cls.client.force_login(cls.author)
-        cls.other_user_client = cls.client.force_login(cls.other_user)
+        cls.default_client = Client()
+        cls.author_client = Client()
+        cls.author_client.force_login(cls.author)
+        cls.other_user_client = Client()
+        cls.other_user_client.force_login(cls.other_user)
 
     def test_status_code_for_different_users(self):
         urls_clients_status = [
@@ -74,5 +76,5 @@ class TestUrls(TestCase):
             with self.subTest(name=name):
                 url = reverse(name, args=args) if args else reverse(name)
                 redirect_url = f'{login_url}?next={url}'
-                response = self.client.get(url)
+                response = self.default_client.get(url)
                 self.assertRedirects(response, redirect_url)
