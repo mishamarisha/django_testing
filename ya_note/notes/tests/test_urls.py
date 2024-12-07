@@ -44,7 +44,7 @@ class TestUrls(TestCase):
              self.other_user_client, HTTPStatus.NOT_FOUND),
             (reverse('notes:detail', args=(self.note.slug,)),
              self.other_user_client, HTTPStatus.NOT_FOUND),
-            (reverse('notes:delete', args=(self.note.slug,)), 
+            (reverse('notes:delete', args=(self.note.slug,)),
              self.other_user_client, HTTPStatus.NOT_FOUND),
         ]
 
