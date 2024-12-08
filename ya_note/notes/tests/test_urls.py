@@ -63,18 +63,17 @@ class TestUrls(TestCase):
 
     def test_redirect_for_anonymous_client(self):
         login_url = reverse('users:login')
-        urls_args = [
-            ('notes:list', None),
-            ('notes:add', None),
-            ('notes:success', None),
-            ('notes:detail', (self.note.slug,)),
-            ('notes:edit', (self.note.slug,)),
-            ('notes:delete', (self.note.slug,))
+        urls = [
+            reverse('notes:list'),
+            reverse('notes:add'),
+            reverse('notes:success'),
+            reverse('notes:detail', args=(self.note.slug,)),
+            reverse('notes:edit', args=(self.note.slug,)),
+            reverse('notes:delete', args=(self.note.slug,))
         ]
 
-        for name, args in urls_args:
-            with self.subTest(name=name):
-                url = reverse(name, args=args) if args else reverse(name)
+        for url in urls:
+            with self.subTest(url=url):
                 redirect_url = f'{login_url}?next={url}'
                 response = self.default_client.get(url)
                 self.assertRedirects(response, redirect_url)

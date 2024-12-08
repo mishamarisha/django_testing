@@ -58,14 +58,14 @@ def test_author_can_delete_comment(author_client, comment, news):
 
 
 def test_other_user_cant_edit_comment(
-        not_author_client, form_data, comment, news, author):
+        not_author_client, form_data, comment):
     url = reverse('news:edit', args=(comment.id,))
     response = not_author_client.post(url, form_data)
     assert response.status_code == HTTPStatus.NOT_FOUND
     comment_from_db = Comment.objects.get(id=comment.id)
     assert comment.text == comment_from_db.text
-    assert comment.author == author
-    assert comment.news.id == news.id
+    assert comment.author == comment_from_db.author
+    assert comment.news.id == comment_from_db.news.id
 
 
 def test_other_user_cant_delete_comment(not_author_client, comment):
